@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입 - 내 식물만 레벨업</title>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+        }
+
+        body {
+            background-color: #f4f5f4;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            background-color: #fbfbfa;
+            min-height: 100vh;
+            padding: 24px 24px 40px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.03);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 36px;
+        }
+
+        .logo {
+            font-size: 19px;
+            font-weight: 800;
+            color: #111111;
+            text-decoration: none;
+            letter-spacing: -0.3px;
+        }
+
+        .back-btn {
+            background-color: #efefef;
+            color: #222222;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 999px;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+
+        .back-btn:hover {
+            background-color: #e2e2e2;
+        }
+
+        .title-section {
+            margin-bottom: 28px;
+        }
+
+        .page-title {
+            font-size: 26px;
+            font-weight: 800;
+            color: #111111;
+            line-height: 1.35;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+
+        .page-desc {
+            font-size: 14.5px;
+            color: #666666;
+        }
+
+        .alert-box {
+            background-color: #ffeaea;
+            color: #d93025;
+            font-size: 13.5px;
+            font-weight: 600;
+            padding: 14px 16px;
+            border-radius: 14px;
+            margin-bottom: 20px;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            flex: 1;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-label {
+            font-size: 14px;
+            font-weight: 700;
+            color: #222222;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 16px;
+            border-radius: 16px;
+            border: 1.5px solid #e5e5e4;
+            background-color: #ffffff;
+            font-size: 15px;
+            color: #111111;
+            outline: none;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+
+        .input-field::placeholder {
+            color: #aaaaaa;
+        }
+
+        .input-field:focus {
+            border-color: #2e7d46;
+            background-color: #f9fdfb;
+        }
+
+        .bottom-area {
+            margin-top: auto;
+            padding-top: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 18px 0;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            background-color: #141715;
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.2s;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .switch-link {
+            text-align: center;
+            font-size: 14px;
+            color: #666666;
+        }
+
+        .switch-link a {
+            color: #2e7d46;
+            font-weight: 700;
+            text-decoration: none;
+            margin-left: 6px;
+        }
+
+        .switch-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header class="header">
+        <a th:href="@{/}" class="logo">내 식물만 레벨업</a>
+        <a th:href="@{/}" class="back-btn">홈으로</a>
+    </header>
+
+    <section class="title-section">
+        <h1 class="page-title">식물 집사 시작하기 🌿</h1>
+        <p class="page-desc">간단한 정보만 입력하면 바로 식물을 키울 수 있어요.</p>
+    </section>
+
+    <div th:if="${errorMessage != null}" class="alert-box">
+        <span th:text="${errorMessage}">입력 정보를 다시 확인해 주세요.</span>
+    </div>
+
+    <form class="auth-form" th:action="@{/signup}" method="post">
+        <div class="input-group">
+            <label for="nickname" class="input-label">닉네임</label>
+            <input type="text" id="nickname" name="nickname" class="input-field" placeholder="식물 집사 닉네임 (예: 초록손)" required>
+        </div>
+
+        <div class="input-group">
+            <label for="username" class="input-label">아이디</label>
+            <input type="text" id="username" name="username" class="input-field" placeholder="사용할 아이디를 입력해 주세요" required>
+        </div>
+
+        <div class="input-group">
+            <label for="password" class="input-label">비밀번호</label>
+            <input type="password" id="password" name="password" class="input-field" placeholder="비밀번호를 입력해 주세요" required>
+        </div>
+
+        <div class="input-group">
+            <label for="passwordConfirm" class="input-label">비밀번호 확인</label>
+            <input type="password" id="passwordConfirm" name="passwordConfirm" class="input-field" placeholder="비밀번호를 한 번 더 입력해 주세요" required>
+        </div>
+
+        <div class="bottom-area">
+            <button type="submit" class="btn-primary">가입 완료하기</button>
+            <p class="switch-link">
+                이미 계정이 있으신가요?
+                <a th:href="@{/login}">로그인</a>
+            </p>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>
