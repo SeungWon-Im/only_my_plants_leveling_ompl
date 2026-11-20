@@ -1,205 +1,589 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>내 식물 - 내 식물만 레벨업</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
-<style>
-  :root {
-    --bg:#f5f6f5; --paper:#ffffff; --ink:#141a16; --sub:#6b7770; --mist:#f1f4f2; --line:#e3e8e4; --leaf:#1f7a47; --leaf-bg:#e7f5ec; --water:#2b6cb0; --water-bg:#e8f1fb;
-  }
-  * { box-sizing:border-box; margin:0; }
-  body { background:var(--bg); color:var(--ink); font-family:'Pretendard Variable',Pretendard,'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; -webkit-font-smoothing:antialiased; }
-  a { color:inherit; text-decoration:none; }
-  [hidden] { display:none !important; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>내 식물 - 내 식물만 레벨업</title>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+        }
 
-  /* 상단 */
-  .top { max-width:1100px; margin:0 auto; padding:0 24px; height:84px; display:flex; align-items:center; }
-  .brand { font-size:19px; font-weight:800; letter-spacing:-0.03em; }
+        body {
+            background: #f5f6f5;
+            color: #141a16;
+            -webkit-font-smoothing: antialiased;
+        }
 
-  .wrap { max-width:1100px; margin:0 auto; padding:8px 24px 80px; }
-  .back { display:inline-flex; align-items:center; gap:6px; height:40px; padding:0 16px; border-radius:999px; background:var(--paper); border:1px solid var(--line); font-size:14px; font-weight:700; }
-  .back:hover { background:var(--mist); }
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
 
-  /* 제목 */
-  .head { margin-top:24px; }
-  .head h1 { font-size:34px; font-weight:800; letter-spacing:-0.04em; line-height:1.3; }
-  .head p { margin-top:8px; font-size:15px; color:var(--sub); }
+        [hidden] {
+            display: none !important;
+        }
 
-  /* 요약 (현재 습도 / 레벨업 기준) */
-  .summary { margin-top:24px; display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-  .sum-box { background:var(--paper); border:1px solid var(--line); border-radius:24px; padding:22px 26px; }
-  .sum-box .k { display:flex; align-items:center; gap:8px; font-size:12px; font-weight:800; color:var(--leaf); letter-spacing:.04em; }
-  .live { display:inline-flex; align-items:center; gap:5px; padding:2px 8px; border-radius:999px; background:var(--leaf-bg); font-size:11px; }
-  .live::before { content:""; width:6px; height:6px; border-radius:50%; background:var(--leaf); }
-  .sum-box .v { margin-top:8px; font-size:22px; font-weight:800; letter-spacing:-0.03em; }
-  .sum-box .s { margin-top:6px; font-size:14px; color:var(--sub); line-height:1.6; }
-  /* 실시간 습도: 이 작은 페이지만 따로 자동 새로고침됨 */
-  .humidity-frame { display:block; width:100%; height:36px; margin-top:8px; border:none; background:transparent; }
+        /* 상단 네비게이션 바 */
+        .header {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px;
+            height: 84px;
+            display: flex;
+            align-items: center;
+        }
 
-  /* 식물 카드 (한 개) */
-  .plant { margin-top:24px; background:var(--paper); border:1px solid var(--line); border-radius:32px; padding:40px 44px; box-shadow:0 8px 30px rgba(20,26,22,.04); display:grid; grid-template-columns:1fr 1fr; gap:48px; }
-  .col-title { font-size:15px; font-weight:800; letter-spacing:-0.02em; }
+        .logo {
+            font-size: 19px;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
 
-  .p-head { display:flex; align-items:center; gap:22px; }
-  .p-photo { flex:none; width:120px; height:120px; border-radius:50%; background:linear-gradient(135deg,#d6ece0 0%,#b3dfc4 100%); display:flex; align-items:center; justify-content:center; color:var(--leaf); font-size:13px; font-weight:700; text-align:center; line-height:1.3; overflow:hidden; }
-  .p-photo img { width:100%; height:100%; object-fit:cover; }
-  .p-name { font-size:26px; font-weight:800; letter-spacing:-0.03em; }
-  .p-species { margin-top:4px; font-size:14px; color:var(--sub); }
-  .level { display:inline-block; margin-top:10px; padding:4px 12px; border-radius:999px; background:var(--leaf); color:#fff; font-size:13px; font-weight:800; }
+        .page-wrapper {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 8px 24px 80px;
+        }
 
-  .p-info { margin-top:24px; display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-  .p-info div { background:var(--mist); border-radius:16px; padding:14px 18px; }
-  .p-info .wide { grid-column:1 / 3; }
-  .p-info .k { font-size:11px; font-weight:800; color:var(--leaf); letter-spacing:.04em; }
-  .p-info .v { margin-top:5px; font-size:15px; font-weight:700; line-height:1.55; }
+        .back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            height: 40px;
+            padding: 0 16px;
+            border-radius: 999px;
+            background: #ffffff;
+            border: 1px solid #e3e8e4;
+            font-size: 14px;
+            font-weight: 700;
+        }
 
-  .exp { margin-top:24px; }
-  .exp-top { display:flex; justify-content:space-between; font-size:13px; color:var(--sub); font-weight:600; }
-  progress { display:block; width:100%; height:12px; margin-top:8px; border:none; border-radius:999px; overflow:hidden; background:var(--mist); accent-color:var(--leaf); }
-  progress::-webkit-progress-bar { background:var(--mist); }
-  progress::-webkit-progress-value { background:var(--leaf); }
-  progress::-moz-progress-bar { background:var(--leaf); }
+        .back:hover {
+            background: #f1f4f2;
+        }
 
-  /* 일일 퀘스트 */
-  .quest { margin-top:12px; display:flex; align-items:center; gap:14px; padding:16px 18px; border-radius:18px; background:var(--mist); font-size:15px; font-weight:700; }
-  .check { flex:none; width:26px; height:26px; border-radius:50%; border:2px solid #c5cfc8; background:var(--paper); display:flex; align-items:center; justify-content:center; font-size:14px; color:#fff; }
-  .quest.done .check { background:var(--leaf); border-color:var(--leaf); }
-  .quest.done .q-text { color:var(--sub); text-decoration:line-through; }
-  .q-text { flex:1; }
-  .q-text small { display:block; margin-top:3px; font-size:12px; color:var(--sub); font-weight:500; }
-  .q-form { display:flex; align-items:center; gap:6px; }
-  .q-btn { display:inline-flex; align-items:center; justify-content:center; height:38px; padding:0 16px; border:none; border-radius:12px; background:var(--paper); font-family:inherit; font-size:13px; font-weight:800; color:var(--ink); cursor:pointer; }
-  /* 숨겨진 입력 (눈에 안 보이게만 처리) */
-  .hide { position:absolute; width:1px; height:1px; opacity:0; overflow:hidden; pointer-events:none; }
-  /* 물주기: 동그라미를 누르면 체크 표시 */
-  .check { cursor:default; }
-  label.check { cursor:pointer; }
-  label.check:hover { border-color:var(--leaf); background:var(--leaf-bg); }
-  .hide:checked + .check { background:var(--leaf); border-color:var(--leaf); }
-  .hide:checked ~ .q-text { color:var(--sub); text-decoration:line-through; }
-  label.q-text { cursor:pointer; }
-  /* 사진 찍기: 사진을 고르면 자동으로 체크, 그때 업로드 버튼이 나타남 */
-  .quest:has(#photo:valid) .check { background:var(--leaf); border-color:var(--leaf); }
-  .q-form .go { display:none; }
-  .quest:has(#photo:valid) .go { display:inline-flex; }
-  .q-btn.go { background:var(--ink); color:#fff; }
-  .q-btn:hover { opacity:.85; }
+        /* 제목 */
+        .head {
+            margin-top: 24px;
+        }
 
-  .edit { margin-top:20px; }
-  .edit a { display:flex; align-items:center; justify-content:center; height:52px; border-radius:16px; background:var(--ink); color:#fff; font-size:15px; font-weight:800; }
-  .edit a:hover { opacity:.85; }
+        .head h1 {
+            font-size: 34px;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            line-height: 1.3;
+        }
 
-  /* 식물이 없을 때 */
-  .empty { margin-top:24px; background:var(--paper); border:1px solid var(--line); border-radius:32px; padding:72px 24px; text-align:center; color:var(--sub); font-size:15px; line-height:1.7; }
-  .empty strong { display:block; margin-bottom:6px; color:var(--ink); font-size:21px; font-weight:800; letter-spacing:-0.03em; }
+        .head p {
+            margin-top: 8px;
+            font-size: 15px;
+            color: #6b7770;
+        }
 
-  @media (max-width:860px) {
-    .plant { grid-template-columns:1fr; gap:32px; padding:28px 22px; border-radius:26px; }
-  }
-  @media (max-width:640px) {
-    .top { height:64px; padding:0 18px; }
-    .wrap { padding:4px 16px 56px; }
-    .head h1 { font-size:26px; }
-    .summary { grid-template-columns:1fr; }
-    .quest { flex-wrap:wrap; }
-  }
-</style>
+        /* 요약 (현재 습도 / 레벨업 기준) */
+        .summary {
+            margin-top: 24px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .sum-box {
+            background: #ffffff;
+            border: 1px solid #e3e8e4;
+            border-radius: 24px;
+            padding: 22px 26px;
+        }
+
+        .sum-box .k {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 800;
+            color: #1f7a47;
+            letter-spacing: .04em;
+        }
+
+        .live {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: #e7f5ec;
+            font-size: 11px;
+        }
+
+        .live::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #1f7a47;
+        }
+
+        .sum-box .v {
+            margin-top: 8px;
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+
+        .sum-box .s {
+            margin-top: 6px;
+            font-size: 14px;
+            color: #6b7770;
+            line-height: 1.6;
+        }
+
+        /* 실시간 습도: 이 작은 페이지만 따로 자동 새로고침됨 */
+        .humidity-frame {
+            display: block;
+            width: 100%;
+            height: 36px;
+            margin-top: 8px;
+            border: none;
+            background: transparent;
+        }
+
+        /* 식물 카드 (한 개) */
+        .plant {
+            margin-top: 24px;
+            background: #ffffff;
+            border: 1px solid #e3e8e4;
+            border-radius: 32px;
+            padding: 40px 44px;
+            box-shadow: 0 8px 30px rgba(20,26,22,.04);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 48px;
+        }
+
+        .col-title {
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .p-head {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+        }
+
+        .p-photo {
+            flex: none;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg,#d6ece0 0%,#b3dfc4 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1f7a47;
+            font-size: 13px;
+            font-weight: 700;
+            text-align: center;
+            line-height: 1.3;
+            overflow: hidden;
+        }
+
+        .p-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .p-name {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+
+        .p-species {
+            margin-top: 4px;
+            font-size: 14px;
+            color: #6b7770;
+        }
+
+        .level {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 4px 12px;
+            border-radius: 999px;
+            background: #1f7a47;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .p-info {
+            margin-top: 24px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .p-info div {
+            background: #f1f4f2;
+            border-radius: 16px;
+            padding: 14px 18px;
+        }
+
+        .p-info .wide {
+            grid-column: 1 / 3;
+        }
+
+        .p-info .k {
+            font-size: 11px;
+            font-weight: 800;
+            color: #1f7a47;
+            letter-spacing: .04em;
+        }
+
+        .p-info .v {
+            margin-top: 5px;
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.55;
+        }
+
+        .exp {
+            margin-top: 24px;
+        }
+
+        .exp-top {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #6b7770;
+            font-weight: 600;
+        }
+
+        progress {
+            display: block;
+            width: 100%;
+            height: 12px;
+            margin-top: 8px;
+            border: none;
+            border-radius: 999px;
+            overflow: hidden;
+            background: #f1f4f2;
+            accent-color: #1f7a47;
+        }
+
+        progress::-webkit-progress-bar {
+            background: #f1f4f2;
+        }
+
+        progress::-webkit-progress-value {
+            background: #1f7a47;
+        }
+
+        progress::-moz-progress-bar {
+            background: #1f7a47;
+        }
+
+        /* 일일 퀘스트 */
+        .quest {
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px 18px;
+            border-radius: 18px;
+            background: #f1f4f2;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .check {
+            flex: none;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            border: 2px solid #c5cfc8;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #fff;
+        }
+
+        .quest.done .check {
+            background: #1f7a47;
+            border-color: #1f7a47;
+        }
+
+        .quest.done .q-text {
+            color: #6b7770;
+            text-decoration: line-through;
+        }
+
+        .q-text {
+            flex: 1;
+        }
+
+        .q-text small {
+            display: block;
+            margin-top: 3px;
+            font-size: 12px;
+            color: #6b7770;
+            font-weight: 500;
+        }
+
+        .q-form {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .q-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 38px;
+            padding: 0 16px;
+            border: none;
+            border-radius: 12px;
+            background: #ffffff;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 800;
+            color: #141a16;
+            cursor: pointer;
+        }
+
+        /* 숨겨진 입력 (눈에 안 보이게만 처리) */
+        .hide {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        /* 물주기: 동그라미를 누르면 체크 표시 */
+        .check {
+            cursor: default;
+        }
+
+        label.check {
+            cursor: pointer;
+        }
+
+        label.check:hover {
+            border-color: #1f7a47;
+            background: #e7f5ec;
+        }
+
+        .hide:checked + .check {
+            background: #1f7a47;
+            border-color: #1f7a47;
+        }
+
+        .hide:checked ~ .q-text {
+            color: #6b7770;
+            text-decoration: line-through;
+        }
+
+        label.q-text {
+            cursor: pointer;
+        }
+
+        /* 사진 찍기: 사진을 고르면 자동으로 체크, 그때 업로드 버튼이 나타남 */
+        .quest:has(#photo:valid) .check {
+            background: #1f7a47;
+            border-color: #1f7a47;
+        }
+
+        .q-form .go {
+            display: none;
+        }
+
+        .quest:has(#photo:valid) .go {
+            display: inline-flex;
+        }
+
+        .q-btn.go {
+            background: #141a16;
+            color: #fff;
+        }
+
+        .q-btn:hover {
+            opacity: .85;
+        }
+
+        .edit {
+            margin-top: 20px;
+        }
+
+        .edit a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 52px;
+            border-radius: 16px;
+            background: #141a16;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+        .edit a:hover {
+            opacity: .85;
+        }
+
+        /* 식물이 없을 때 */
+        .empty {
+            margin-top: 24px;
+            background: #ffffff;
+            border: 1px solid #e3e8e4;
+            border-radius: 32px;
+            padding: 72px 24px;
+            text-align: center;
+            color: #6b7770;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .empty strong {
+            display: block;
+            margin-bottom: 6px;
+            color: #141a16;
+            font-size: 21px;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+
+        @media (max-width: 860px) {
+            .plant {
+                grid-template-columns: 1fr;
+                gap: 32px;
+                padding: 28px 22px;
+                border-radius: 26px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .header {
+                height: 64px;
+                padding: 0 18px;
+            }
+
+            .page-wrapper {
+                padding: 4px 16px 56px;
+            }
+
+            .head h1 {
+                font-size: 26px;
+            }
+
+            .summary {
+                grid-template-columns: 1fr;
+            }
+
+            .quest {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
 </head>
 <body>
 
-  <!-- 상단 -->
-  <header class="top">
-    <a class="brand" href="/">내 식물만 레벨업</a>
-  </header>
+<!-- 상단 -->
+<header class="header">
+    <a th:href="@{/home}" class="logo">내 식물만 레벨업</a>
+</header>
 
-  <main class="wrap">
+<main class="page-wrapper">
     <!-- 제목 -->
     <div class="head">
-      <h1>내 식물</h1>
-      <p>식물 정보를 확인하고 오늘의 퀘스트를 완료해 보세요.</p>
+        <h1>내 식물</h1>
+        <p>식물 정보를 확인하고 오늘의 퀘스트를 완료해 보세요.</p>
     </div>
 
     <!-- 요약 -->
     <section class="summary">
-      <div class="sum-box">
-        <div class="k">HUMIDITY <span class="live">실시간</span></div>
-        <!-- 라즈베리파이 습도를 보여주는 작은 페이지(humidity.html)가 자동 새로고침됨 -->
-        <iframe class="humidity-frame" src="/plants/humidity" title="현재 습도"></iframe>
-        <div class="s">라즈베리파이 센서로 측정한 현재 습도예요.</div>
-      </div>
-      <div class="sum-box">
-        <div class="k">LEVEL UP</div>
-        <div class="v">사진 3장을 올리면 레벨업</div>
-        <div class="s">사진을 올릴 때마다 레벨업 게이지가 한 칸씩 올라가요.</div>
-      </div>
+        <div class="sum-box">
+            <div class="k">HUMIDITY <span class="live">실시간</span></div>
+            <!-- 라즈베리파이 습도를 보여주는 작은 페이지(humidity.html)가 자동 새로고침됨 -->
+            <iframe class="humidity-frame" th:src="@{/plant_humidity}" title="현재 습도"></iframe>
+            <div class="s">라즈베리파이 센서로 측정한 현재 습도예요.</div>
+        </div>
+        <div class="sum-box">
+            <div class="k">LEVEL UP</div>
+            <div class="v">사진 3장을 올리면 레벨업</div>
+            <div class="s">사진을 올릴 때마다 레벨업 게이지가 한 칸씩 올라가요.</div>
+        </div>
     </section>
 
     <!-- 식물이 없을 때 보이는 안내 (식물은 한 개만 등록 가능) -->
-    <!-- 스프링부트: th:hidden="${plant != null}" -->
-    <div class="empty" hidden>
-      <strong>아직 등록한 식물이 없어요</strong>
-      메인 화면에서 식물을 등록하면 이곳에 나타나요.
+    <div class="empty" th:hidden="${plant != null}" hidden>
+        <strong>아직 등록한 식물이 없어요</strong>
+        메인 화면에서 식물을 등록하면 이곳에 나타나요.
     </div>
 
     <!-- 등록한 식물 (한 개) -->
-    <!-- 스프링부트: th:hidden="${plant == null}" -->
-    <article class="plant">
+    <article class="plant" th:hidden="${plant == null}">
 
-      <!-- 왼쪽: 식물 정보 -->
-      <section>
-        <div class="p-head">
-          <div class="p-photo">식물<br>사진</div>
-          <div>
-            <div class="p-name">초록이</div>
-            <div class="p-species">몬스테라</div>
-            <span class="level">Lv. 0</span>
-          </div>
-        </div>
+        <!-- 왼쪽: 식물 정보 -->
+        <section>
+            <div class="p-head">
+                <div class="p-photo">식물<br>사진</div>
+                <div>
+                    <div class="p-name">초록이</div>
+                    <div class="p-species">몬스테라</div>
+                    <span class="level">Lv. 0</span>
+                </div>
+            </div>
 
-        <div class="p-info">
-          <div><div class="k">물주기</div><div class="v">7일마다</div></div>
-          <div><div class="k">습도 환경</div><div class="v">보통</div></div>
-          <div class="wide"><div class="k">특징</div><div class="v">잎에 갈라진 구멍이 있는 열대 식물이에요. 밝은 간접광을 좋아하고 직사광선은 피해주세요.</div></div>
-        </div>
+            <div class="p-info">
+                <div><div class="k">물주기</div><div class="v">7일마다</div></div>
+                <div><div class="k">습도 환경</div><div class="v">보통</div></div>
+                <div class="wide"><div class="k">특징</div><div class="v">잎에 갈라진 구멍이 있는 열대 식물이에요. 밝은 간접광을 좋아하고 직사광선은 피해주세요.</div></div>
+            </div>
 
-        <div class="exp">
-          <div class="exp-top"><span>다음 레벨까지 사진</span><span>0 / 3</span></div>
-          <!-- 스프링부트: th:value="${plant.photoCount}" max="3" / 글자도 th:text 로 -->
-          <progress value="0" max="3"></progress>
-        </div>
-      </section>
+            <div class="exp">
+                <div class="exp-top"><span>다음 레벨까지 사진</span><span>0 / 3</span></div>
+                <progress value="0" max="3"></progress>
+            </div>
+        </section>
 
-      <!-- 오른쪽: 일일 퀘스트 -->
-      <section>
-        <h2 class="col-title">일일 퀘스트</h2>
+        <!-- 오른쪽: 일일 퀘스트 -->
+        <section>
+            <h2 class="col-title">일일 퀘스트</h2>
 
-        <!-- 사진 찍기 퀘스트: 사진을 고르면 자동으로 체크됨 -->
-        <!-- 스프링부트: 오늘 이미 올렸다면 quest 에 th:classappend="${plant.photoDone} ? 'done'" -->
-        <div class="quest">
-          <span class="check">✓</span>
-          <div class="q-text">사진 찍기<small>사진을 올리면 자동으로 체크돼요</small></div>
-          <form class="q-form" action="/plants/photo" method="post" enctype="multipart/form-data">
-            <input class="hide" type="file" id="photo" name="photo" accept="image/*" required>
-            <label class="q-btn" for="photo">사진 올리기</label>
-            <button type="submit" class="q-btn go">전송</button>
-          </form>
-        </div>
+            <!-- 사진 찍기 퀘스트: 사진을 고르면 자동으로 체크됨 -->
+            <div class="quest">
+                <span class="check">✓</span>
+                <div class="q-text">사진 찍기<small>사진을 올리면 자동으로 체크돼요</small></div>
+                <form class="q-form" th:action="@{/plant_photo}" method="post" enctype="multipart/form-data">
+                    <input class="hide" type="file" id="photo" name="photo" accept="image/*" required>
+                    <label class="q-btn" for="photo">사진 올리기</label>
+                    <button type="submit" class="q-btn go">전송</button>
+                </form>
+            </div>
 
-        <!-- 물주기 퀘스트: 동그라미를 눌러 직접 체크 -->
-        <!-- 스프링부트: 저장된 값이면 input 에 th:checked="${plant.waterDone}" -->
-        <form class="quest" action="/plants/water" method="post">
-          <input class="hide" type="checkbox" id="water" name="water">
-          <label class="check" for="water">✓</label>
-          <label class="q-text" for="water">물주기</label>
-        </form>
+            <!-- 물주기 퀘스트: 동그라미를 눌러 직접 체크 -->
+            <form class="quest" th:action="@{/plant_water}" method="post">
+                <input class="hide" type="checkbox" id="water" name="water">
+                <label class="check" for="water">✓</label>
+                <label class="q-text" for="water">물주기</label>
+            </form>
 
-        <div class="edit"><a href="/plants/edit">정보 수정</a></div>
-      </section>
+            <div class="edit"><a th:href="@{/plant_edit}">정보 수정</a></div>
+        </section>
 
     </article>
-  </main>
+</main>
 
 </body>
 </html>
