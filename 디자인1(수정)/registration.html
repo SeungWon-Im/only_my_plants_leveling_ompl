@@ -414,21 +414,21 @@
                 <!-- 검색 후: API에서 받은 값 -->
                 <div class="info-result" th:hidden="${plant == null}" hidden>
                     <div class="info-head">
-                        <div class="info-name" th:text="${plant.name}"></div>
+                        <div class="info-name" th:text="${plant?.name}"></div>
                         <div class="info-sub">검색한 식물의 정보예요</div>
                     </div>
                     <div class="info-grid">
                         <div class="info-card">
                             <div class="info-badge">물주기</div>
-                            <div class="info-value" th:text="${plant.water}"></div>
+                            <div class="info-value" th:text="${plant?.water}"></div>
                         </div>
                         <div class="info-card">
                             <div class="info-badge">습도 환경</div>
-                            <div class="info-value" th:text="${plant.humidity}"></div>
+                            <div class="info-value" th:text="${plant?.humidity}"></div>
                         </div>
                         <div class="info-card">
                             <div class="info-badge">특징</div>
-                            <div class="info-value" th:text="${plant.feature}"></div>
+                            <div class="info-value" th:text="${plant?.feature}"></div>
                         </div>
                     </div>
                 </div>
