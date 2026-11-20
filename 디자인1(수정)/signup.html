@@ -197,17 +197,12 @@
 <div class="page-wrapper">
     <header class="header">
         <a th:href="@{/}" class="logo">내 식물만 레벨업</a>
-        <a th:href="@{/}" class="btn-home">홈으로</a>
     </header>
 
     <section class="auth-card">
         <div class="card-header">
             <h1 class="card-title">회원가입</h1>
             <p class="card-desc">간단한 정보를 입력하고 식물 기록을 시작해 보세요.</p>
-        </div>
-
-        <div th:if="${errorMessage != null}" class="alert-box">
-            <span th:text="${errorMessage}">입력 정보를 다시 확인해 주세요.</span>
         </div>
 
         <form class="auth-form" th:action="@{/signup}" method="post">
