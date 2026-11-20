@@ -207,23 +207,12 @@
 <div class="page-wrapper">
     <header class="header">
         <a th:href="@{/}" class="logo">내 식물만 레벨업</a>
-        <a th:href="@{/}" class="btn-home">홈으로</a>
     </header>
 
     <section class="auth-card">
         <div class="card-header">
             <h1 class="card-title">로그인</h1>
             <p class="card-desc">계정에 로그인하고 내 식물의 성장을 확인해 보세요.</p>
-        </div>
-
-        <div th:if="${param.signupSuccess}" class="success-box">
-            회원가입이 완료되었습니다. 로그인해 주세요.
-        </div>
-
-        <div th:if="${param.error != null or errorMessage != null}" class="alert-box">
-            <span th:text="${errorMessage != null ? errorMessage : '아이디 또는 비밀번호가 일치하지 않습니다.'}">
-                아이디 또는 비밀번호가 일치하지 않습니다.
-            </span>
         </div>
 
         <form class="auth-form" th:action="@{/login}" method="post">
