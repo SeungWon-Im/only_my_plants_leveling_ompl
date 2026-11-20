@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>내 식물만 레벨업</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root {
+    --bg:#eef1ee; --paper:#ffffff; --ink:#141a16; --sub:#6b7770; --mist:#f1f4f2; --leaf:#19a463;
+  }
+  * { box-sizing:border-box; margin:0; }
+  body { background:var(--bg); color:var(--ink); font-family:'Pretendard Variable',Pretendard,'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; -webkit-font-smoothing:antialiased; }
+
+  #app { max-width:440px; min-height:100vh; margin:0 auto; background:var(--paper); padding:20px 22px 150px; position:relative; }
+
+  /* 상단 */
+  .top { display:flex; justify-content:space-between; align-items:center; height:40px; }
+  .brand { font-size:17px; font-weight:800; letter-spacing:-0.03em; }
+  .auth { display:flex; align-items:center; gap:10px; }
+  .user { font-size:14px; font-weight:600; color:var(--leaf); }
+  .auth a { font-size:14px; font-weight:600; color:var(--ink); background:var(--mist); border-radius:999px; padding:8px 14px; text-decoration:none; cursor:pointer; }
+
+  /* 히어로 */
+  .hero { margin-top:22px; }
+  .hero img { width:100%; aspect-ratio:16/10; object-fit:cover; display:block; border-radius:28px; background:var(--mist); }
+  .hero h2 { font-size:26px; line-height:1.25; font-weight:800; letter-spacing:-0.04em; margin-top:20px; }
+  .hero p { font-size:15px; line-height:1.65; color:var(--sub); margin-top:12px; letter-spacing:-0.01em; }
+
+  /* 하단 고정 버튼 */
+  .dock { position:fixed; left:0; right:0; bottom:0; display:flex; justify-content:center; pointer-events:none; }
+  .dock-in { width:100%; max-width:440px; padding:44px 22px 22px; display:flex; flex-direction:column; gap:10px; pointer-events:auto;
+             background:linear-gradient(to top,#fff 62%,rgba(255,255,255,0)); }
+  .cta { display:block; text-align:center; text-decoration:none; font-size:17px; font-weight:700; letter-spacing:-0.02em; padding:18px; border-radius:18px; transition:transform .12s; }
+  .cta:active { transform:scale(.98); }
+  .cta.main { background:var(--ink); color:#fff; }
+  .cta.sub { background:var(--mist); color:var(--ink); }
+
+  a:focus-visible { outline:3px solid var(--leaf); outline-offset:2px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <div class="brand">내 식물만 레벨업</div>
+    <div class="auth">
+      <span class="user" id="userName"></span>
+      <a id="authBtn" href="login.html">로그인</a>
+    </div>
+  </header>
+
+  <!-- 사진 + 사이트 설명 (임시) : img src, 제목, 설명 문구만 바꾸면 됨 -->
+  <section class="hero">
+    <img id="heroImg" alt="사이트 대표 이미지" src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='1000'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23dff3e6'/%3E%3Cstop offset='1' stop-color='%23a9dcbc'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='800' height='1000' fill='url(%23g)'/%3E%3Ctext x='400' y='510' font-size='36' text-anchor='middle' fill='%23136f45' font-family='sans-serif'%3E%EC%82%AC%EC%A7%84 %EB%93%A4%EC%96%B4%EA%B0%88 %EC%9E%90%EB%A6%AC%3C/text%3E%3C/svg%3E">
+    <h2 id="heroTitle">매일 한 장,<br>식물과 같이 자라요</h2>
+    <p id="heroDesc">식물을 등록하고 매일 사진을 올려보세요. 물주기와 습도도 함께 챙길 수 있어요. (사이트 설명이 들어갈 자리예요)</p>
+  </section>
+</div>
+
+<nav class="dock">
+  <div class="dock-in">
+    <a class="cta main" id="goRegister" href="login.html">식물 등록</a>
+    <a class="cta sub" id="goMy" href="login.html">내 식물</a>
+  </div>
+</nav>
+
+<script>
+/* 저장 키: pl_users {id:{pw,nick,uploads}}, pl_session (로그인한 id) */
+function load(k, d){ try { const v = JSON.parse(localStorage.getItem(k)); return v ?? d; } catch(e){ return d; } }
+
+const users = load('pl_users', {});
+const session = load('pl_session', null);
+const user = users[session];
+
+if (user) {
+  const $ = s => document.querySelector(s);
+  $('#userName').textContent = user.nick + '님';
+  $('#authBtn').textContent = '로그아웃';
+  $('#authBtn').removeAttribute('href');
+  $('#authBtn').onclick = () => { localStorage.removeItem('pl_session'); location.reload(); };
+  $('#goRegister').href = 'register.html';
+  $('#goMy').href = 'my.html';
+}
+</script>
+</body>
+</html>
