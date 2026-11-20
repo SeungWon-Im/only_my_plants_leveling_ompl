@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>로그인 - 내 식물만 레벨업</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root { --bg:#eef1ee; --paper:#ffffff; --ink:#141a16; --sub:#6b7770; --mist:#f1f4f2; --leaf:#19a463; --err:#d6453d; }
+  * { box-sizing:border-box; margin:0; }
+  body { background:var(--bg); color:var(--ink); font-family:'Pretendard Variable',Pretendard,'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; -webkit-font-smoothing:antialiased; }
+  #app { max-width:440px; min-height:100vh; margin:0 auto; background:var(--paper); padding:20px 22px 130px; }
+  .top { display:flex; align-items:center; height:40px; }
+  .back { width:40px; height:40px; border-radius:50%; background:var(--mist); display:flex; align-items:center; justify-content:center; text-decoration:none; color:var(--ink); font-size:18px; }
+  h1 { font-size:28px; line-height:1.3; font-weight:800; letter-spacing:-0.04em; margin-top:28px; }
+  .lead { font-size:15px; color:var(--sub); margin-top:8px; line-height:1.6; }
+  .field { margin-top:20px; }
+  .field label { display:block; font-size:13px; font-weight:600; color:var(--sub); margin-bottom:8px; }
+  input { width:100%; font:inherit; font-size:16px; padding:15px 16px; border:2px solid transparent; border-radius:14px; background:var(--mist); color:var(--ink); outline:none; transition:border-color .15s; }
+  input:focus { border-color:var(--leaf); background:#fff; }
+  .msg { min-height:22px; margin-top:14px; font-size:14px; font-weight:600; color:var(--err); }
+  .msg.ok { color:var(--leaf); }
+  .switch { margin-top:10px; text-align:center; font-size:14px; color:var(--sub); }
+  .switch a { color:var(--ink); font-weight:700; margin-left:6px; }
+  .dock { position:fixed; left:0; right:0; bottom:0; display:flex; justify-content:center; pointer-events:none; }
+  .dock-in { width:100%; max-width:440px; padding:44px 22px 22px; pointer-events:auto; background:linear-gradient(to top,#fff 62%,rgba(255,255,255,0)); }
+  .cta { width:100%; border:0; font:inherit; font-size:17px; font-weight:700; letter-spacing:-0.02em; padding:18px; border-radius:18px; background:var(--ink); color:#fff; cursor:pointer; transition:transform .12s; }
+  .cta:active { transform:scale(.98); }
+  button:focus-visible, a:focus-visible { outline:3px solid var(--leaf); outline-offset:2px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="top"><a class="back" href="index.html" aria-label="메인으로">←</a></header>
+
+  <h1>로그인</h1>
+  <p class="lead">식물이 기다리고 있어요.</p>
+
+  <div class="field">
+    <label for="id">아이디</label>
+    <input type="text" id="id" autocomplete="username" autocapitalize="off">
+  </div>
+  <div class="field">
+    <label for="pw">비밀번호</label>
+    <input type="password" id="pw" autocomplete="current-password">
+  </div>
+  <div class="msg" id="msg" role="alert"></div>
+
+  <p class="switch">아직 계정이 없나요?<a href="signup.html">회원가입</a></p>
+</div>
+
+<nav class="dock">
+  <div class="dock-in"><button class="cta" id="submit" type="button">로그인</button></div>
+</nav>
+
+<script>
+/* 저장 키: pl_users {아이디:{pw,nick,uploads}}, pl_session (로그인한 아이디) — 다른 페이지와 공유 */
+const $ = s => document.querySelector(s);
+const load = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v ?? d; } catch(e){ return d; } };
+const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch(e){ return false; } };
+
+const users = load('pl_users', {});
+
+/* 회원가입 직후에는 안내 문구 + 아이디 자동 입력 */
+const params = new URLSearchParams(location.search);
+if (params.get('joined')) {
+  $('#msg').textContent = '가입 완료! 로그인해주세요.'; $('#msg').classList.add('ok');
+  $('#id').value = params.get('joined'); $('#pw').focus();
+}
+
+function login(){
+  const id = $('#id').value.trim(), pw = $('#pw').value;
+  const msg = $('#msg'); msg.classList.remove('ok');
+  if (!id || !pw) return msg.textContent = '아이디와 비밀번호를 입력해주세요.';
+  if (!users[id] || users[id].pw !== pw) return msg.textContent = '아이디 또는 비밀번호가 맞지 않아요.';
+  if (!save('pl_session', id)) return msg.textContent = '로그인 정보를 저장하지 못했어요. 브라우저 저장소 설정을 확인해주세요.';
+  location.href = 'index.html';   // 로그인 후 메인으로
+}
+$('#submit').onclick = login;
+document.addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+</script>
+</body>
+</html>
