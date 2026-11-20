@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>식물 등록 - 내 식물만 레벨업</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root {
+    --bg:#f5f6f5; --paper:#ffffff; --ink:#141a16; --sub:#6b7770; --mist:#f1f4f2; --line:#e3e8e4; --leaf:#1f7a47; --leaf-bg:#e7f5ec;
+  }
+  * { box-sizing:border-box; margin:0; }
+  body { background:var(--bg); color:var(--ink); font-family:'Pretendard Variable',Pretendard,'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; -webkit-font-smoothing:antialiased; }
+  a { color:inherit; text-decoration:none; }
+
+  /* 상단 */
+  .top { max-width:1100px; margin:0 auto; padding:0 24px; height:84px; display:flex; align-items:center; }
+  .brand { font-size:19px; font-weight:800; letter-spacing:-0.03em; }
+
+  /* 본문 */
+  .wrap { max-width:1100px; margin:0 auto; padding:8px 24px 80px; }
+  .back { display:inline-flex; align-items:center; gap:6px; height:40px; padding:0 16px; border-radius:999px; background:var(--paper); border:1px solid var(--line); font-size:14px; font-weight:700; }
+  .back:hover { background:var(--mist); }
+
+  .card { margin-top:16px; background:var(--paper); border:1px solid var(--line); border-radius:32px; padding:56px 64px; box-shadow:0 8px 30px rgba(20,26,22,.04); }
+  .card h1 { font-size:32px; font-weight:800; letter-spacing:-0.04em; line-height:1.3; }
+  .card .desc { margin-top:10px; font-size:15px; color:var(--sub); line-height:1.6; }
+
+  /* 사진 + 별명 */
+  .profile { margin-top:40px; display:flex; align-items:center; gap:40px; }
+  .photo-box { flex:none; }
+  .photo-box input { display:none; }
+  .photo-circle { width:152px; height:152px; border-radius:50%; background:linear-gradient(135deg,#d6ece0 0%,#b3dfc4 100%); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; color:var(--leaf); font-size:13px; font-weight:700; cursor:pointer; border:2px dashed #8fcaa7; text-align:center; }
+  .photo-circle:hover { border-color:var(--leaf); }
+  .photo-circle .plus { font-size:30px; line-height:1; font-weight:400; }
+  .profile .names { flex:1; display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+
+  /* 입력 */
+  .field { margin-top:24px; }
+  .profile .field { margin-top:0; }
+  label.lb { display:flex; align-items:center; gap:8px; margin-bottom:8px; font-size:14px; font-weight:700; }
+  .tag { display:inline-block; padding:3px 9px; border-radius:8px; background:var(--leaf-bg); color:var(--leaf); font-size:11px; font-weight:800; letter-spacing:.04em; }
+  input[type=text], input[type=search] {
+    width:100%; height:54px; border:2px solid transparent; border-radius:18px; background:var(--mist); font-family:inherit; font-size:16px; color:var(--ink); outline:none; padding:0 18px;
+  }
+  input::placeholder { color:#9aa5a0; }
+  input:focus { border-color:var(--leaf); background:var(--paper); }
+
+  /* 검색창 (돋보기) */
+  .search { position:relative; }
+  .search input { padding-right:60px; }
+  .search .icon { position:absolute; right:8px; top:50%; transform:translateY(-50%); width:38px; height:38px; border:none; border-radius:50%; background:var(--ink); color:#fff; font-size:16px; cursor:pointer; }
+
+  /* 검색 결과 (API에서 받은 정보가 들어갈 자리) */
+  .result { margin-top:16px; border-radius:24px; padding:26px 28px; background:var(--mist); }
+  .result-head { display:flex; align-items:baseline; gap:12px; }
+    .result-name { font-size:19px; font-weight:800; letter-spacing:-0.03em; }
+  .result-sub { margin-top:4px; font-size:13px; color:var(--sub); }
+
+  .info { margin-top:18px; display:grid; grid-template-columns:1fr 1fr 1.6fr; gap:12px; }
+  .info-box { background:var(--paper); border-radius:18px; padding:16px 18px; }
+    .info-box .k { font-size:12px; font-weight:800; color:var(--leaf); letter-spacing:.04em; }
+  .info-box .v { margin-top:6px; font-size:15px; line-height:1.6; font-weight:600; }
+
+  /* 검색 전 안내 (결과가 없을 때) */
+  [hidden] { display:none !important; }
+  .empty { margin-top:16px; border-radius:24px; padding:40px 28px; background:var(--mist); text-align:center; color:var(--sub); font-size:15px; line-height:1.7; }
+  .empty strong { display:block; margin-bottom:4px; color:var(--ink); font-size:17px; font-weight:800; letter-spacing:-0.02em; }
+
+  /* 하단 버튼 */
+  .actions { margin-top:40px; display:flex; justify-content:flex-end; gap:10px; }
+  .btn { display:inline-flex; align-items:center; justify-content:center; height:56px; padding:0 40px; border:none; border-radius:20px; font-family:inherit; font-size:16px; font-weight:800; letter-spacing:-0.02em; background:var(--mist); color:var(--ink); cursor:pointer; }
+  .btn.primary { background:var(--ink); color:#fff; }
+  .btn:hover { opacity:.85; }
+
+  @media (max-width:640px) {
+    .top { height:64px; padding:0 18px; }
+    .wrap { padding:4px 16px 56px; }
+    .card { padding:28px 22px; border-radius:26px; }
+    .card h1 { font-size:26px; }
+    .profile { flex-direction:column; align-items:stretch; gap:20px; }
+    .photo-box { align-self:center; }
+    .info { grid-template-columns:1fr; }
+    .profile .names { grid-template-columns:1fr; }
+    .result { padding:20px; }
+    .actions { flex-direction:column-reverse; }
+    .btn { width:100%; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- 상단 -->
+  <header class="top">
+    <a class="brand" href="/">내 식물만 레벨업</a>
+  </header>
+
+  <main class="wrap">
+    <!-- 뒤로가기 -->
+    <a class="back" href="/">← 뒤로가기</a>
+
+    <section class="card">
+      <h1>내 식물 등록</h1>
+      <p class="desc">사진과 정보를 입력하면 내 식물이 만들어져요. 매일 사진을 올려 레벨을 키워보세요.</p>
+
+      <!-- 컨트롤러의 @PostMapping("/plants/new")로 전송 -->
+      <form action="/plants/new" method="post" enctype="multipart/form-data">
+
+        <!-- 사진 + 별명 -->
+        <div class="profile">
+          <div class="photo-box">
+            <input type="file" id="photo" name="photo" accept="image/*">
+            <label class="photo-circle" for="photo">
+              <span class="plus">+</span>
+              <span>사진 추가</span>
+            </label>
+          </div>
+          <div class="names">
+            <div class="field">
+              <label class="lb" for="nickname">별명</label>
+              <input type="text" id="nickname" name="nickname" placeholder="예) 초록이" maxlength="20" required>
+            </div>
+            <div class="field">
+              <label class="lb" for="since">키우기 시작한 날</label>
+              <input type="text" id="since" name="since" placeholder="예) 2026-11-20">
+            </div>
+          </div>
+        </div>
+
+        <!-- 식물 종류 검색 -->
+        <div class="field">
+          <label class="lb" for="species">식물 종류 검색</label>
+          <div class="search">
+            <input type="search" id="species" name="species" placeholder="식물 이름을 검색해 보세요 (예: 몬스테라)">
+            <!-- 돋보기 버튼: 컨트롤러가 API를 호출해서 아래 결과를 채워줌 -->
+            <button type="submit" class="icon" formaction="/plants/search" formmethod="get" formenctype="application/x-www-form-urlencoded" aria-label="검색">🔍</button>
+          </div>
+
+          <!-- 검색 전: 아무것도 검색하지 않았을 때 보이는 안내 -->
+          <!-- 스프링부트: th:hidden="${plant != null}" (검색 결과가 있으면 숨김) -->
+          <div class="empty">
+            <strong>식물 정보가 아직 없어요</strong>
+            식물 이름을 검색하면 물주기, 습도 환경, 특징이 여기에 나타나요.
+          </div>
+
+          <!-- 검색 후: API에서 받은 값이 들어갈 자리 (지금은 예시 값, 처음에는 숨겨져 있음) -->
+          <!-- 스프링부트: th:hidden="${plant == null}" (검색 결과가 없으면 숨김) -->
+          <div class="result" hidden>
+            <div class="result-head">
+              <div class="result-name">몬스테라</div>
+              <div class="result-sub">검색한 식물의 정보예요</div>
+            </div>
+            <div class="info">
+              <div class="info-box">
+                <div class="k">물주기</div>
+                <div class="v">겉흙이 마르면 흠뻑 (약 7일마다)</div>
+              </div>
+              <div class="info-box">
+                <div class="k">습도 환경</div>
+                <div class="v">보통 (40~70%)</div>
+              </div>
+              <div class="info-box">
+                <div class="k">특징</div>
+                <div class="v">잎에 갈라진 구멍이 있는 열대 식물이에요. 밝은 간접광을 좋아하고 직사광선은 피해주세요.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 등록할 때 같이 저장할 검색 결과 (값은 컨트롤러가 채움) -->
+          <input type="hidden" name="waterCycle" value="">
+          <input type="hidden" name="humidity" value="">
+        </div>
+
+        <!-- 하단 버튼 -->
+        <div class="actions">
+          <a class="btn" href="/">취소</a>
+          <button type="submit" class="btn primary">등록</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+</body>
+</html>
