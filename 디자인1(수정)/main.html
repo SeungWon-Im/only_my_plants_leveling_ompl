@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>내 식물만 레벨업</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root {
+    --bg:#eef1ee; --paper:#ffffff; --ink:#141a16; --sub:#6b7770; --mist:#f1f4f2; --leaf:#19a463;
+  }
+  * { box-sizing:border-box; margin:0; }
+  body { background:var(--bg); color:var(--ink); font-family:'Pretendard Variable',Pretendard,'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; -webkit-font-smoothing:antialiased; }
+  a { color:inherit; text-decoration:none; }
+
+  #app { max-width:440px; min-height:100vh; margin:0 auto; background:var(--paper); padding:20px 22px 40px; display:flex; flex-direction:column; }
+
+  /* 상단 */
+  .top { display:flex; justify-content:space-between; align-items:center; height:40px; }
+  .brand { font-size:17px; font-weight:800; letter-spacing:-0.03em; }
+  .login { display:inline-flex; align-items:center; justify-content:center; height:36px; padding:0 18px; border-radius:999px; background:var(--mist); font-size:14px; font-weight:700; }
+
+  /* 사진 자리 */
+  .photo { margin-top:24px; height:250px; border-radius:28px; background:linear-gradient(135deg,#d6ece0 0%,#b3dfc4 100%); display:flex; align-items:center; justify-content:center; color:#1b7a4d; font-size:17px; }
+
+  /* 소개 글 */
+  .intro { margin-top:28px; }
+  .intro h1 { font-size:27px; font-weight:800; line-height:1.3; letter-spacing:-0.04em; }
+  .intro p { margin-top:14px; font-size:15px; line-height:1.65; color:var(--sub); letter-spacing:-0.02em; }
+
+  /* 버튼 */
+  .actions { margin-top:auto; padding-top:60px; display:flex; flex-direction:column; gap:10px; }
+  .btn { display:flex; align-items:center; justify-content:center; height:56px; border-radius:20px; font-size:16px; font-weight:800; letter-spacing:-0.02em; background:var(--mist); color:var(--ink); }
+  .btn.primary { background:var(--ink); color:#fff; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- 상단 -->
+  <header class="top">
+    <div class="brand">내 식물만 레벨업</div>
+    <a class="login" href="/login">로그인</a>
+  </header>
+
+  <!-- 사진 들어갈 자리 (나중에 <img src="..."> 로 교체) -->
+  <div class="photo">사진 들어갈 자리</div>
+
+  <!-- 소개 -->
+  <section class="intro">
+    <h1>매일 한 장,<br>식물과 같이 자라요</h1>
+    <p>식물을 등록하고 매일 사진을 올려보세요. 물주기와 습도도 함께 챙길 수 있어요. (사이트 설명이 들어갈 자리예요)</p>
+  </section>
+
+  <!-- 버튼 -->
+  <nav class="actions">
+    <a class="btn primary" href="/plants/new">식물 등록</a>
+    <a class="btn" href="/plants">내 식물</a>
+  </nav>
+
+</div>
+</body>
+</html>
