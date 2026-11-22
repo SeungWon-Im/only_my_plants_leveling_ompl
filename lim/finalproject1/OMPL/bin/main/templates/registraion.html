@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>식물 등록 - 내 식물만 레벨업</title>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <style>
+        /* 기본 초기화 및 폰트 설정 */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+        }
+
+        body {
+            background-color: #f5f6f5;
+            color: #141a16;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* 상단 네비게이션 바 */
+        .header {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px;
+            height: 84px;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 19px;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+
+        /* 본문 컨테이너 */
+        .page-wrapper {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 8px 24px 80px;
+        }
+
+        .form-section {
+            margin-top: 16px;
+            background-color: #ffffff;
+            border: 1px solid #e3e8e4;
+            border-radius: 32px;
+            padding: 56px 64px;
+            box-shadow: 0 8px 30px rgba(20, 26, 22, 0.04);
+        }
+
+        .form-title {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            line-height: 1.3;
+        }
+
+        .form-desc {
+            margin-top: 10px;
+            font-size: 15px;
+            color: #6b7770;
+            line-height: 1.6;
+        }
+
+        /* 사진 + 별명 */
+        .profile-row {
+            margin-top: 40px;
+            display: flex;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .photo-box {
+            flex: none;
+        }
+
+        .photo-box input {
+            display: none;
+        }
+
+        .photo-circle {
+            width: 152px;
+            height: 152px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #d6ece0 0%, #b3dfc4 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            color: #1f7a47;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            border: 2px dashed #8fcaa7;
+            text-align: center;
+        }
+
+        .photo-circle:hover {
+            border-color: #1f7a47;
+        }
+
+        .photo-circle .plus {
+            font-size: 30px;
+            line-height: 1;
+            font-weight: 400;
+        }
+
+        .name-fields {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        /* 입력 필드 */
+        .field {
+            margin-top: 24px;
+        }
+
+        .profile-row .field {
+            margin-top: 0;
+        }
+
+        .field-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .field-input {
+            width: 100%;
+            height: 54px;
+            border: 2px solid transparent;
+            border-radius: 18px;
+            background-color: #f1f4f2;
+            font-size: 16px;
+            color: #141a16;
+            outline: none;
+            padding: 0 18px;
+        }
+
+        .field-input::placeholder {
+            color: #9aa5a0;
+        }
+
+        .field-input:focus {
+            border-color: #1f7a47;
+            background-color: #ffffff;
+        }
+
+        /* 검색창 (돋보기) */
+        .search-box {
+            position: relative;
+        }
+
+        .search-box .field-input {
+            padding-right: 60px;
+        }
+
+        .btn-search {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 38px;
+            height: 38px;
+            border: none;
+            border-radius: 50%;
+            background-color: #141a16;
+            color: #ffffff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+
+        /* 검색 전 안내 (결과가 없을 때) */
+        .info-empty {
+            margin-top: 16px;
+            border-radius: 24px;
+            padding: 40px 28px;
+            background-color: #f1f4f2;
+            text-align: center;
+            color: #6b7770;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .info-empty strong {
+            display: block;
+            margin-bottom: 4px;
+            color: #141a16;
+            font-size: 17px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        /* 검색 결과 (API에서 받은 정보가 들어갈 자리) */
+        .info-result {
+            margin-top: 16px;
+            border-radius: 24px;
+            padding: 26px 28px;
+            background-color: #f1f4f2;
+        }
+
+        .info-head {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+        }
+
+        .info-name {
+            font-size: 19px;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+
+        .info-sub {
+            margin-top: 4px;
+            font-size: 13px;
+            color: #6b7770;
+        }
+
+        .info-grid {
+            margin-top: 18px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1.6fr;
+            gap: 12px;
+        }
+
+        .info-card {
+            background-color: #ffffff;
+            border-radius: 18px;
+            padding: 16px 18px;
+        }
+
+        .info-card .info-badge {
+            font-size: 12px;
+            font-weight: 800;
+            color: #1f7a47;
+            letter-spacing: 0.04em;
+        }
+
+        .info-card .info-value {
+            margin-top: 6px;
+            font-size: 15px;
+            line-height: 1.6;
+            font-weight: 600;
+        }
+
+        /* 하단 버튼 그룹 */
+        .cta-group {
+            margin-top: 40px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-secondary-lg {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 56px;
+            padding: 0 40px;
+            border: none;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background-color: #f1f4f2;
+            color: #141a16;
+            cursor: pointer;
+        }
+
+        .btn-primary-lg {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 56px;
+            padding: 0 40px;
+            border: none;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background-color: #141a16;
+            color: #ffffff;
+            cursor: pointer;
+        }
+
+        .btn-secondary-lg:hover,
+        .btn-primary-lg:hover {
+            opacity: 0.85;
+        }
+
+        /* 모바일 반응형 */
+        @media (max-width: 640px) {
+            .header {
+                height: 64px;
+                padding: 0 18px;
+            }
+
+            .page-wrapper {
+                padding: 4px 16px 56px;
+            }
+
+            .form-section {
+                padding: 28px 22px;
+                border-radius: 26px;
+            }
+
+            .form-title {
+                font-size: 26px;
+            }
+
+            .profile-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 20px;
+            }
+
+            .photo-box {
+                align-self: center;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .name-fields {
+                grid-template-columns: 1fr;
+            }
+
+            .info-result {
+                padding: 20px;
+            }
+
+            .cta-group {
+                flex-direction: column-reverse;
+            }
+
+            .btn-secondary-lg,
+            .btn-primary-lg {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- 상단 네비게이션 -->
+<header class="header">
+    <a th:href="@{/home}" class="logo">내 식물만 레벨업</a>
+</header>
+
+<main class="page-wrapper">
+
+    <section class="form-section">
+        <h1 class="form-title">내 식물 등록</h1>
+        <p class="form-desc">사진과 정보를 입력하면 내 식물이 만들어져요. 매일 사진을 올려 레벨을 키워보세요.</p>
+
+        <form th:action="@{/plant_new}" method="post" enctype="multipart/form-data">
+
+            <!-- 사진 + 별명 -->
+            <div class="profile-row">
+                <div class="photo-box">
+                    <input type="file" id="photo" name="photo" accept="image/*">
+                    <label class="photo-circle" for="photo">
+                        <span class="plus">+</span>
+                        <span>사진 추가</span>
+                    </label>
+                </div>
+                <div class="name-fields">
+                    <div class="field">
+                        <label class="field-label" for="nickname">별명</label>
+                        <input type="text" id="nickname" name="nickname" class="field-input" placeholder="예) 초록이" maxlength="20" required>
+                    </div>
+                    <div class="field">
+                        <label class="field-label" for="since">키우기 시작한 날</label>
+                        <input type="text" id="since" name="since" class="field-input" placeholder="예) 2026-11-20">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 식물 종류 검색 -->
+            <div class="field">
+                <label class="field-label" for="species">식물 종류 검색</label>
+                <div class="search-box">
+                    <input type="search" id="species" name="species" class="field-input" placeholder="식물 이름을 검색해 보세요 (예: 몬스테라)">
+                    <!-- 돋보기 버튼: 컨트롤러가 API를 호출해서 아래 결과를 채워줌 -->
+                    <button type="submit" class="btn-search" th:formaction="@{/plant_search}" formmethod="get" formenctype="application/x-www-form-urlencoded" aria-label="검색">🔍</button>
+                </div>
+
+                <!-- 검색 전: 아무것도 검색하지 않았을 때 보이는 안내 -->
+                <div class="info-empty" th:hidden="${plant != null}">
+                    <strong>식물 정보가 아직 없어요</strong>
+                    식물 이름을 검색하면 물주기, 습도 환경, 특징이 여기에 나타나요.
+                </div>
+
+                <!-- 검색 후: API에서 받은 값 -->
+                <div class="info-result" th:hidden="${plant == null}" hidden>
+                    <div class="info-head">
+                        <div class="info-name" th:text="${plant?.name}"></div>
+                        <div class="info-sub">검색한 식물의 정보예요</div>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <div class="info-badge">물주기</div>
+                            <div class="info-value" th:text="${plant?.water}"></div>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-badge">습도 환경</div>
+                            <div class="info-value" th:text="${plant?.humidity}"></div>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-badge">특징</div>
+                            <div class="info-value" th:text="${plant?.feature}"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 등록할 때 같이 저장할 검색 결과 -->
+                <input type="hidden" name="waterCycle" th:value="${plant != null ? plant.water : ''}">
+                <input type="hidden" name="humidity" th:value="${plant != null ? plant.humidity : ''}">
+            </div>
+
+            <!-- 하단 버튼 -->
+            <div class="cta-group">
+                <a th:href="@{/home}" class="btn-secondary-lg">취소</a>
+                <button type="submit" class="btn-primary-lg">등록</button>
+            </div>
+        </form>
+    </section>
+</main>
+
+</body>
+</html>
